@@ -35,17 +35,19 @@ public class ProductController<dao> {
 	      HttpHeaders headers = new HttpHeaders();
 	      headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
 	      HttpEntity <String> entity = new HttpEntity<String>(headers);
+	      //From the completed orders DB take product ids based on highest purchase amount
 	      String response = restTemplate.exchange("http://localhost:9193/product/getOrders/highestprice", HttpMethod.GET, entity, String.class).getBody();
 	      System.out.println(response);
 	      response = response.substring(response.indexOf("totalproducts")+16,response.indexOf("}")-1);
+	      
 	      String[] collectproductid = response.split("]");
 	      String productids = "";
 	      String getresponses = "";
 	      for (int i = 0; i < collectproductid.length; i++){
-          //System.out.println(collectproductid[i]);
           	String productid = collectproductid[i].substring(1);
           	productids = productids +" "+ productid;
           	System.out.println(productids);
+          	//send the collected product ids into the below API and collect the product names
           	String response2 = restTemplate.exchange("http://localhost:9190/product/getProducts/productid/"+productid, HttpMethod.GET, entity, String.class).getBody();
           	response2 = response2.substring(response2.indexOf("productname")+14,response2.indexOf("totalprice")-3);
           	getresponses = getresponses+", "+response2;
@@ -54,7 +56,6 @@ public class ProductController<dao> {
 	      }
 	      getresponses = "Products purchased for the highest price : "+getresponses;
 	      return getresponses;
-	      
 	}
 	
 }
